@@ -20,4 +20,10 @@ describe('utils-misc:', () => {
 
     assert.deepEqual(stripProps(from, ['id', '_id']), { a: 1, b: { c: 4 } });
   });
+
+  it('stripProps empty array', () => {
+    const from = { };
+
+    assert.deepEqual(stripProps(from, null), from);
+  });
 });

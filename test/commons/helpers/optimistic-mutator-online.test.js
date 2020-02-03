@@ -161,6 +161,17 @@ export default function (Replicator, desc) {
           .then(() => replicator.disconnect());
       });
 
+      it('create fails, existing id', () => {
+        return replicator.connect()
+          .then(() => clientService.create({ id: 99, uuid: 1002, order: 99 }))
+          .then(() => {
+            assert(false, 'Unexpectedly succeeded.');
+          })
+          .catch(err => {
+            assert.equal(err.className, 'bad-request');
+          });
+      });
+
       it('create adds missing uuid', () => {
         return replicator.connect()
           .then(() => clientService.create({ id: 99, order: 99 }))
@@ -192,6 +203,39 @@ export default function (Replicator, desc) {
           });
       });
 
+      it('update fails with array', () => {
+        return replicator.connect()
+          .then(() => clientService.update(1000, [{ id: 0, uuid: 1000, order: 99 }]))
+          .then(() => {
+            assert(false, 'Unexpectedly succeeded.');
+          })
+          .catch(err => {
+            assert.equal(err.className, 'bad-request');
+          });
+      });
+
+      it('update fails with id null', () => {
+        return replicator.connect()
+          .then(() => clientService.update(null, { id: 0, uuid: 1000, order: 99 }))
+          .then(() => {
+            assert(false, 'Unexpectedly succeeded.');
+          })
+          .catch(err => {
+            assert.equal(err.className, 'bad-request');
+          });
+      });
+
+      it('update fails with id not found', () => {
+        return replicator.connect()
+          .then(() => clientService.update(999, { id: 0, uuid: 1000, order: 99 }))
+          .then(() => {
+            assert(false, 'Unexpectedly succeeded.');
+          })
+          .catch(err => {
+            assert.equal(err.className, 'not-found');
+          });
+      });
+
       it('patch works', () => {
         return replicator.connect()
           .then(() => clientService.patch(1001, { order: 99 }))
@@ -214,6 +258,17 @@ export default function (Replicator, desc) {
           });
       });
 
+      it('patch fails', () => {
+        return replicator.connect()
+          .then(() => clientService.patch(999, { order: 99 }))
+          .then(() => {
+            assert(false, 'Unexpectedly succeeded.');
+          })
+          .catch(err => {
+            assert.equal(err.className, 'not-found');
+          });
+      });
+
       it('remove works', () => {
         return replicator.connect()
           .then(() => clientService.remove(1002))
@@ -232,6 +287,17 @@ export default function (Replicator, desc) {
               { source: 1, eventName: 'removed', action: 'remove', record: { id: 2, uuid: 1002, order: 2 } },
               { source: 0, eventName: 'removed', action: 'remove', record: { id: 2, uuid: 1002, order: 2 } }
             ]);
+          });
+      });
+
+      it('remove fails', () => {
+        return replicator.connect()
+          .then(() => clientService.remove(999))
+          .then(() => {
+            assert(false, 'Unexpectedly succeeded.');
+          })
+          .catch(err => {
+            assert.equal(err.className, 'not-found');
           });
       });
     });
